@@ -1,6 +1,6 @@
 ## benjerry-icecream
 
-* [x] Sample golang rest-api (ben&jerry icecream)
+* [x] Sample golang rest-api ( ben&jerry icecream )
 
 
 ### Pre-Requisite
@@ -29,15 +29,17 @@
 	
 	- Needs to create the api database and grant the necessary permissions
 	
-	- Refer the testdata/dump.sql & testdata/dump_test.sql
+	- Refer the testdata/*.sql
 	
 ```sh
 
-    #for prod purposes
-    mysql -uroot < testdata/dump.sql
+    #prod purposes
+    mysql -uroot < testdata/db_prod.sql
+    mysql -uroot < testdata/dump_prod.sql
 
-    #for dev purposes
-    mysql -uroot < testdata/dump_test.sql
+    #dev purposes
+    mysql -uroot < testdata/db_dev.sql
+    mysql -uroot < testdata/dump_dev.sql
 
 ```
 
@@ -63,6 +65,8 @@
 		
 		- driver    = database details for mysql  (user/pass/dbname/host/port)
 		
+		- dump_file = json file for prep-data     (loaded to db during server start-up)
+
 		- showlog   = flag for dev't log on std-out
 		
 	[x] Sanity check
@@ -74,6 +78,7 @@
 ```sh
 	./benjerry-icecream --config '{
                 "http_port":"8989",
+		"dump_file":"./testdata/icecream.json",
                     "driver":{
                     "user":"benjerry",
                     "pass":"rxxxx",
