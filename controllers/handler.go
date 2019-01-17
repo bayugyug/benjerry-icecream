@@ -14,17 +14,19 @@ type APIResponse struct {
 }
 
 type TokenResponse struct {
-	Token string
+	Code   int
+	Status string
+	Token  string
+}
+
+type OtpResponse struct {
+	Code      int
+	Status    string
+	Otp       string
+	OtpExpiry string
 }
 
 type ApiHandler struct {
-}
-
-func (api *ApiHandler) Login(w http.ResponseWriter, r *http.Request) {
-
-	var token string
-	//token send
-	render.JSON(w, r, TokenResponse{Token: token})
 }
 
 func (api *ApiHandler) Otp(w http.ResponseWriter, r *http.Request) {

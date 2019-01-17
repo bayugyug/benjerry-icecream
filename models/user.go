@@ -27,6 +27,10 @@ type User struct {
 	ExpiredToken int    `json:"-"`
 }
 
+func NewUser() *User {
+	return &User{}
+}
+
 func (u *User) Bind(r *http.Request) error {
 	//sanity check
 	if u == nil {
@@ -39,6 +43,12 @@ func (u *User) Bind(r *http.Request) error {
 
 func (u *User) SanityCheck(data *User, which string) bool {
 
+	switch which {
+	case "ADD", "UPDATE", "DELETE", "LOG":
+		if data.User == "" || data.Pass == "" {
+			return false
+		}
+	}
 	return true
 }
 
@@ -126,19 +136,40 @@ func (u *User) Create(ctx context.Context, db *sql.DB, data *User) int64 {
 	)
 	if err != nil {
 		log.Println("SQL_ERR", err)
-		return 0
+		return -1
 	}
 	id, err := result.LastInsertId()
-	if err != nil || id < 1 {
+	if err != nil {
 		log.Println("SQL_ERR", err)
-		return 0
+		return -2
 	}
 	//sounds good ;-)
-	return int64(id)
+	data.ID = int64(id)
+	return data.ID
 
 }
 
 func (u *User) Update(ctx context.Context, db *sql.DB, data *User) (bool, error) {
+	//fmt
+	r := `UPDATE users
+                SET
+                pass        = ?,
+                modified_dt = Now()
+              WHERE  user   = ?`
+	//exec
+	result, err := db.ExecContext(ctx, r,
+		data.Pass,
+		data.User,
+	)
+	if err != nil {
+		log.Println("SQL_ERR", err)
+		return false, errors.New("Failed to update")
+	}
+	_, err = result.RowsAffected()
+	if err != nil {
+		log.Println("SQL_ERR", err)
+		return false, errors.New("Failed to update")
+	}
 	//sounds good ;-)
 	return true, nil
 }
@@ -148,6 +179,7 @@ func (u *User) Delete(ctx context.Context, db *sql.DB, who string) (bool, error)
 	r := `UPDATE users
                 SET
                 status      = 'deleted',
+                token_exp   = date_add(now(), interval -1 day),
                 modified_dt = Now()
               WHERE  user = ?`
 	//exec
@@ -219,6 +251,34 @@ func (u *User) UpdateOtpExpiry(ctx context.Context, db *sql.DB, data *User) (boo
               WHERE  user = ?`
 	//exec
 	result, err := db.ExecContext(ctx, r,
+		data.User,
+	)
+	if err != nil {
+		log.Println("SQL_ERR", err)
+		return false, errors.New("Failed to update")
+	}
+	_, err = result.RowsAffected()
+	if err != nil {
+		log.Println("SQL_ERR", err)
+		return false, errors.New("Failed to update")
+	}
+	//sounds good ;-)
+	return true, nil
+}
+
+func (u *User) SetUserLogStatus(ctx context.Context, db *sql.DB, data *User) (bool, error) {
+	//fmt
+	r := `UPDATE users
+                SET
+                logged      = 1,
+                token       = ?,
+                token_exp   = ?,
+                modified_dt = Now()
+              WHERE  user = ?`
+	//exec
+	result, err := db.ExecContext(ctx, r,
+		data.Token,
+		data.TokenExp,
 		data.User,
 	)
 	if err != nil {

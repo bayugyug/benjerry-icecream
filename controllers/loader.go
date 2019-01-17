@@ -27,7 +27,9 @@ func (api *ApiHandler) Preload(fn string) (int, error) {
 	ice := models.NewIcecream()
 	for _, v := range icecreams {
 		pid := ice.Create(ApiInstance.Context, ApiInstance.DB, &v)
-		log.Println("new-product-id:", pid, v.Name)
+
+		//log.Println("new-product-id:", pid, v.Name)
+
 		//add all sourcing-values
 		for _, source := range v.SourcingValues {
 			_ = ice.CreateSourcingValue(ApiInstance.Context, ApiInstance.DB, source, pid)
