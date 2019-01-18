@@ -56,6 +56,19 @@ func (u *Icecream) SanityCheck(data *Icecream, which string) bool {
 		if data.ID == "" {
 			return false
 		}
+	case "ADD-INGREDIENT", "UPDATE-INGREDIENT":
+		if len(data.Ingredients) <= 0 || data.ID == "" {
+			return false
+		}
+	case "ADD-SOURCING", "UPDATE-SOURCING":
+		if len(data.SourcingValues) <= 0 || data.ID == "" {
+			return false
+		}
+	case "DELETE-INGREDIENT", "DELETE-SOURCING":
+		if data.ID == "" {
+			return false
+		}
+
 	}
 	return true
 }
