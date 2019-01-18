@@ -55,7 +55,7 @@
 ### List of End-Points-Url
 
 
-```sh
+```bash
 
 		#User Create
 		curl -v -X POST 'http://127.0.0.1:8989/v1/api/user'  -d '{
