@@ -13,18 +13,21 @@ import (
 	"github.com/bayugyug/benjerry-icecream/utils"
 )
 
-//internal system initialize
-func init() {
-
-	//uniqueness
-	rand.Seed(time.Now().UnixNano())
-
-}
-
 const (
 	//status
 	usageConfig = "use to set the config file parameter with db-userinfos/http-port"
 )
+
+var (
+	//Settings of the app
+	Settings *ApiSettings
+)
+
+//internal system initialize
+func init() {
+	//uniqueness
+	rand.Seed(time.Now().UnixNano())
+}
 
 //ParameterConfig optional parameter structure
 type ParameterConfig struct {

@@ -238,7 +238,7 @@ func (svc *ApiService) MapRoute() *chi.Mux {
 				sr := chi.NewRouter()
 				sr.Use(jwtauth.Verifier(svc.AppJwtToken.TokenAuth), svc.BearerChecker)
 				sr.Post("/", api.CreateIcecream)
-				sr.Put("/", api.UpdateIcecream)
+				sr.Put("/{id}", api.UpdateIcecream)
 				sr.Get("/{id}", api.GetIcecream)
 				sr.Delete("/{id}", api.DeleteIcecream)
 				return sr
@@ -247,7 +247,7 @@ func (svc *ApiService) MapRoute() *chi.Mux {
 			func(api *ApiHandler) *chi.Mux {
 				sr := chi.NewRouter()
 				sr.Use(jwtauth.Verifier(svc.AppJwtToken.TokenAuth), svc.BearerChecker)
-				sr.Post("/", api.CreateIngredient)
+				sr.Post("/{id}", api.CreateIngredient)
 				sr.Get("/{id}", api.GetIngredient)
 				sr.Delete("/{id}", api.DeleteIngredient)
 				return sr
@@ -256,7 +256,7 @@ func (svc *ApiService) MapRoute() *chi.Mux {
 			func(api *ApiHandler) *chi.Mux {
 				sr := chi.NewRouter()
 				sr.Use(jwtauth.Verifier(svc.AppJwtToken.TokenAuth), svc.BearerChecker)
-				sr.Post("/", api.CreateSourcing)
+				sr.Post("/{id}", api.CreateSourcing)
 				sr.Get("/{id}", api.GetSourcing)
 				sr.Delete("/{id}", api.DeleteSourcing)
 				return sr

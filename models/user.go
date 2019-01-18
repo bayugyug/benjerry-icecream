@@ -44,10 +44,24 @@ func (u *User) Bind(r *http.Request) error {
 func (u *User) SanityCheck(data *User, which string) bool {
 
 	switch which {
-	case "ADD", "UPDATE", "DELETE", "LOG":
+	case "ADD", "UPDATE", "LOG":
 		if data.User == "" || data.Pass == "" {
 			return false
 		}
+	case "ADD-LEN":
+		//at least 4 chars?
+		if len(data.User) < 4 || len(data.Pass) < 4 {
+			return false
+		}
+	case "OTP":
+		if data.User == "" || data.Otp == "" {
+			return false
+		}
+	case "DELETE":
+		if data.User == "" {
+			return false
+		}
+
 	}
 	return true
 }
@@ -61,7 +75,6 @@ func (u *User) Get(ctx context.Context, db *sql.DB, who string) (*User, error) {
 			ifnull(otp,''), 
 			ifnull(logged,0), 
 			ifnull(token,''), 
-			ifnull(token_exp,''), 
 			ifnull(created_dt,''), 
 			ifnull(modified_dt,''),
 			ifnull((otp_exp   <now()),0),
@@ -124,15 +137,19 @@ func (u *User) Create(ctx context.Context, db *sql.DB, data *User) int64 {
 	r := `INSERT INTO users (
                 user,
                 pass,
+                otp,
+                otp_exp,
                 status,
                 created_dt)
-              VALUES (?, ?, 'pending',Now())
+              VALUES (?, ?, ?, ?, 'pending',Now())
               ON DUPLICATE KEY UPDATE
                  modified_dt = Now() `
 	//exec
 	result, err := db.ExecContext(ctx, r,
 		data.User,
 		data.Pass,
+		data.Otp,
+		data.OtpExp,
 	)
 	if err != nil {
 		log.Println("SQL_ERR", err)
@@ -242,11 +259,12 @@ func (u *User) UpdateUserOtp(ctx context.Context, db *sql.DB, data *User) (bool,
 	return true, nil
 }
 
-func (u *User) UpdateOtpExpiry(ctx context.Context, db *sql.DB, data *User) (bool, error) {
+func (u *User) UpdateOtpStatus(ctx context.Context, db *sql.DB, data *User) (bool, error) {
 	//fmt
 	r := `UPDATE users
                 SET
-                otp_exp     = date_add(now(), interval -1 day),
+                status      = 'active',
+                otp_exp     = date_add(now(), interval -1 day) ,
                 modified_dt = Now()
               WHERE  user = ?`
 	//exec

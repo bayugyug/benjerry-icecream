@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/bayugyug/benjerry-icecream/models"
 	"github.com/go-chi/jwtauth"
 	"github.com/go-chi/render"
 )
@@ -26,17 +27,19 @@ type OtpResponse struct {
 	OtpExpiry string
 }
 
-type ApiHandler struct {
+type IcereamResponse struct {
+	Code      int
+	Status    string
+	ProductID string
 }
 
-func (api *ApiHandler) Otp(w http.ResponseWriter, r *http.Request) {
+type IcereamGetResponse struct {
+	Code   int
+	Status string
+	Result *models.Icecream
+}
 
-	//response send
-	render.JSON(w, r, APIResponse{
-		Code:   http.StatusOK,
-		Status: "OK::" + r.URL.Path,
-	})
-
+type ApiHandler struct {
 }
 
 func (api *ApiHandler) Logout(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +64,7 @@ func (api ApiHandler) GetAuthToken(r *http.Request) string {
 	_, claims, _ := jwtauth.FromContext(r.Context())
 
 	//try checking it
-	if token, ok := claims["mobile"].(string); ok {
+	if token, ok := claims["user"].(string); ok {
 		return token
 	}
 

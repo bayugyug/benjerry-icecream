@@ -1,14 +1,17 @@
 package controllers
 
 import (
+	"crypto/md5"
 	"fmt"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/bayugyug/benjerry-icecream/models"
 	"github.com/bayugyug/benjerry-icecream/utils"
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
 	"github.com/go-chi/render"
 )
@@ -30,6 +33,14 @@ func (api *ApiHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		api.ReplyErrContent(w, r, http.StatusPartialContent, http.StatusText(http.StatusPartialContent))
 		return
 	}
+	//chk
+	if !data.SanityCheck(data, "ADD-LEN") {
+		utils.Dumper("MISSING_REQUIRED_PARAMS::INVALID_LEN", data)
+		//206
+		api.ReplyErrContent(w, r, http.StatusPartialContent, "User/Pass must at least 4 characters")
+		return
+	}
+
 	data.Pass = data.Hash
 	//exists
 	if old := data.Exists(ApiInstance.Context, ApiInstance.DB, data.User); old > 0 {
@@ -129,13 +140,8 @@ func (api *ApiHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	token := api.GetAuthToken(r)
 	data := models.NewUser()
-	if err := render.Bind(r, data); err != nil {
-		utils.Dumper("BIND_FAILED", err)
-		//206
-		api.ReplyErrContent(w, r, http.StatusPartialContent, http.StatusText(http.StatusPartialContent))
-		return
-	}
-	defer r.Body.Close()
+	//get from url
+	data.User = strings.TrimSpace(chi.URLParam(r, "id"))
 	//chk
 	if !data.SanityCheck(data, "DELETE") {
 		utils.Dumper("MISSING_REQUIRED_PARAMS", data)
@@ -223,11 +229,12 @@ func (api *ApiHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var token string
+
 	//generate new token
 	token, err = ApiInstance.AppJwtToken.GenToken(
 		jwt.MapClaims{
 			"user": data.User,
-			"uuid": data.ID,
+			"uuid": fmt.Sprintf("%x%x", data.ID, md5.Sum([]byte(data.User))),
 			"exp":  jwtauth.ExpireIn(30 * 24 * time.Hour),
 		},
 	)
@@ -249,6 +256,67 @@ func (api *ApiHandler) Login(w http.ResponseWriter, r *http.Request) {
 		Code:   http.StatusOK,
 		Status: "Login Successfull",
 		Token:  token,
+	})
+
+}
+
+func (api *ApiHandler) Otp(w http.ResponseWriter, r *http.Request) {
+
+	data := models.NewUser()
+	if err := render.Bind(r, data); err != nil {
+		utils.Dumper("BIND_FAILED", err)
+		//206
+		api.ReplyErrContent(w, r, http.StatusPartialContent, http.StatusText(http.StatusPartialContent))
+		return
+	}
+	defer r.Body.Close()
+	//chk
+	if !data.SanityCheck(data, "OTP") {
+		utils.Dumper("MISSING_REQUIRED_PARAMS", data)
+		//206
+		api.ReplyErrContent(w, r, http.StatusPartialContent, http.StatusText(http.StatusPartialContent))
+		return
+	}
+	row, err := data.Get(ApiInstance.Context, ApiInstance.DB, data.User)
+	//sanity
+	if err != nil {
+		utils.Dumper("RECORD_NOT_FOUND", err)
+		//404
+		api.ReplyErrContent(w, r, http.StatusNotFound, "Record not found")
+		return
+	}
+
+	//good then check password match
+	if data.Otp != row.Otp {
+		utils.Dumper("OTP_MISMATCH", data.Otp, row.Otp)
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Otp mismatch or invalid")
+		return
+	}
+
+	if row.Status != "pending" {
+		utils.Dumper("LOGIN_ACCOUNT_NOT_PENDING", row.Status)
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Account is not pending")
+		return
+	}
+
+	//expired
+	if row.ExpiredOtp > 0 {
+		utils.Dumper("TIME_EXPIRED", row.OtpExp)
+		//406
+		api.ReplyErrContent(w, r, http.StatusNotAcceptable, "Otp expired")
+		return
+
+	}
+
+	//set active
+	_, _ = data.UpdateOtpStatus(ApiInstance.Context, ApiInstance.DB, data)
+
+	//token send
+	render.JSON(w, r, APIResponse{
+		Code:   http.StatusOK,
+		Status: "Otp successful",
 	})
 
 }
