@@ -311,3 +311,49 @@ func (u *User) SetUserLogStatus(ctx context.Context, db *sql.DB, data *User) (bo
 	//sounds good ;-)
 	return true, nil
 }
+
+func (u *User) GetByToken(ctx context.Context, db *sql.DB, token, who string) (*User, error) {
+	r := `SELECT 
+			ifnull(id,''), 
+			ifnull(user,''), 
+			ifnull(pass,''), 
+			ifnull(status,''), 
+			ifnull(otp,''), 
+			ifnull(logged,0), 
+			ifnull(token,''), 
+			ifnull(created_dt,''), 
+			ifnull(modified_dt,''),
+			ifnull((otp_exp   <now()),0),
+			ifnull((token_exp <now()),0)
+		FROM  users WHERE user = ? AND  token = ? `
+	stmt, err := db.PrepareContext(ctx, r)
+	if err != nil {
+		log.Println("Get", err)
+		return nil, err
+	}
+	defer stmt.Close()
+	var data User
+	err = stmt.QueryRowContext(ctx, who, token).Scan(
+		&data.ID,
+		&data.User,
+		&data.Pass,
+		&data.Status,
+		&data.Otp,
+		&data.Logged,
+		&data.Token,
+		&data.Created,
+		&data.Modified,
+		&data.ExpiredOtp,
+		&data.ExpiredToken,
+	)
+	switch {
+	case err == sql.ErrNoRows:
+		log.Println("Get NOT_FOUND", who)
+		return nil, errors.New("Info not found")
+	case err != nil:
+		log.Println("Get", err)
+		return nil, err
+	}
+	//sounds good ;-)
+	return &data, nil
+}

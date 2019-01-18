@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/bayugyug/benjerry-icecream/models"
@@ -61,10 +62,30 @@ func (api *ApiHandler) IndexPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api ApiHandler) GetAuthToken(r *http.Request) string {
-	_, claims, _ := jwtauth.FromContext(r.Context())
+	tok, claims, _ := jwtauth.FromContext(r.Context())
 
+	//sanity check
+	if tok == nil || !tok.Valid {
+		log.Println("INVALID_TOKEN")
+		return ""
+	}
 	//try checking it
 	if token, ok := claims["user"].(string); ok {
+		//validate maybe fr db?
+		data := models.NewUser()
+		row, err := data.GetByToken(ApiInstance.Context, ApiInstance.DB, tok.Raw, token)
+		if err != nil || row == nil {
+			log.Println("ERR_VALIDATE_TOKEN::", err, token)
+			return ""
+		}
+		if row.ExpiredToken > 0 {
+			log.Println("ERR_VALIDATE_TOKEN::ALREADY_EXPIRED")
+			return ""
+		}
+		if row.Token != tok.Raw {
+			log.Println("ERR_VALIDATE_TOKEN::MISMATCH", tok.Raw)
+			return ""
+		}
 		return token
 	}
 
