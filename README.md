@@ -91,7 +91,7 @@
 				  "pass":"8888"
 				  }'
 
-				  {"Code":200,"Status":"Login Successfull","Token":"{TOKEN_FROM_LOGIN}"}
+				  {"Code":200,"Status":"Login Successfull","Token":"{TOKEN}"}
 
 
 		#User Login (Invalid parameters)
