@@ -91,7 +91,7 @@
 				  "pass":"8888"
 				  }'
 
-				  {"Code":200,"Status":"Login Successfull","Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTAzODUxNTAsInVzZXIiOiJiZW5AamVycnkuY29tIiwidXVpZCI6IjBkOGI2NDZmYzExN2QxNTM1NWMzZDM0MmVjZWE2MzdiNyJ9.ByEHyvvP7b_TaAmDKlrqlH7hWE3tEQe8dE3SNrBH0xw"}
+				  {"Code":200,"Status":"Login Successfull","Token":"{TOKEN_FROM_LOGIN}"}
 
 
 		#User Login (Invalid parameters)
@@ -197,6 +197,46 @@
 				  }
 				}		
 		
+		
+		#Ingredients Create
+		curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X POST 'http://127.0.0.1:8989/v1/api/ingredient/154' -d '{"ingredients": [
+				"a1vegetable oil (canola",
+				"b2safflower",
+				"c3and/or sunflower oil)",
+				"d4guar gum",
+				"e5carrageenan"
+				]}'
+				
+				{"Code":200,"Status":"Create Ingredient successful"}
+
+
+				
+		#Ingredients Delete
+		curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/ingredient/154'  
+
+		{"Code":200,"Status":"Delete Ingredient successful"}
+
+		
+		#Sourcing Values Create
+		curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X POST 'http://127.0.0.1:8989/v1/api/sourcing/154' -d '{"sourcing_values": [
+				"y1 hehehe Fairtrade",
+				"z1 responsibly Sourced Packaging",
+				"w1 yez-Caring Dairy"
+				]}'
+
+				{"Code":200,"Status":"Create Sourcing Values successful"}
+
+
+		#Sourcing Values Delete
+		curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/sourcing/154'  
+
+				{"Code":200,"Status":"Delete Sourcing Values successful"}
+
+
+				
+				
+				
+				
 ```
 
 
