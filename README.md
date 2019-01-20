@@ -34,27 +34,26 @@
 
 ### Required Data Preparation
 
-    	[x] Create sample mysql db
-	
+
+	[x] Create sample mysql db
+
 		- Needs to create the api database and grant the necessary permissions
-		
+
 		- Refer the testdata/*.sql
+		
 
 	[x] You can also automate the preparation of db schemas by running the provided scipt
 
-	     testdata/auto-runx.sh
+		- testdata/auto-runx.sh
 
-	     (the script assumes that your mysql root account don't have password, 
-	      otherwise, please modify it accordingly according to your setup)
-
+		- the script assumes that your mysql root account don't have password, 
+		  otherwise, please modify it accordingly according to your setup)
+		  
 ```sh
 
+		#Modify the $MYSQL_PWD if your user root have password
 
-	#modify the $MYSQL_PWD if your user root have password
-
-	cd testdata && ./auto-runx.sh && cd ../
-
-
+		cd testdata && ./auto-runx.sh && cd ../
 
 ```
 
