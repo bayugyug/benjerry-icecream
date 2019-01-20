@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/bayugyug/benjerry-icecream/models"
+	"github.com/bayugyug/benjerry-icecream/utils"
 	"github.com/go-chi/jwtauth"
 	"github.com/go-chi/render"
 )
@@ -45,11 +46,35 @@ type ApiHandler struct {
 
 func (api *ApiHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	//NOTE: not yet implemented for token invalidation ;-)
+
 	//reply
 	render.JSON(w, r,
 		map[string]string{
 			"Greeting": "Bye!",
 		})
+
+	token := api.GetAuthToken(r)
+	if token == "" {
+		utils.Dumper("INVALID_TOKEN:", token)
+		return
+	}
+
+	//get
+	udata := models.NewUser()
+	urow, err := udata.Get(ApiInstance.Context, ApiInstance.DB, token)
+
+	//sanity
+	if err != nil {
+		utils.Dumper("RECORD_NOT_FOUND::USER", err)
+		return
+	}
+
+	//set flag:0
+	if oks, err := udata.SetUserLogout(ApiInstance.Context, ApiInstance.DB, urow); !oks || err != nil {
+		utils.Dumper("RECORD_UPDATE_FAILED", urow.User, err)
+		return
+	}
+	log.Println("see yah!")
 }
 
 func (api *ApiHandler) IndexPage(w http.ResponseWriter, r *http.Request) {
@@ -69,6 +94,7 @@ func (api ApiHandler) GetAuthToken(r *http.Request) string {
 		log.Println("INVALID_TOKEN")
 		return ""
 	}
+	// log.Println(claims, tok)
 	//try checking it
 	if token, ok := claims["user"].(string); ok {
 		//validate maybe fr db?

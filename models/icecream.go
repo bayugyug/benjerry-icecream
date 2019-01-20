@@ -251,6 +251,7 @@ func (u *Icecream) Create(ctx context.Context, db *sql.DB, data *Icecream) int64
                 created_dt)
               VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, Now())
 			  ON DUPLICATE KEY UPDATE
+                modified_by = ?,
                 modified_dt = Now()
                 `
 	//exec
@@ -262,6 +263,7 @@ func (u *Icecream) Create(ctx context.Context, db *sql.DB, data *Icecream) int64
 		data.ImageClosed,
 		data.AllergyInfo,
 		data.DietaryCertifications,
+		data.CreatedBy,
 		data.CreatedBy,
 	)
 	if err != nil {

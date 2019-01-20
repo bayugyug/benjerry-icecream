@@ -42,11 +42,11 @@
 	
 ```sh
 
-    #prod purposes
+    #prod
     mysql -uroot < testdata/db_prod.sql
     mysql -uroot < testdata/dump_prod.sql
 
-    #dev purposes
+    #dev
     mysql -uroot < testdata/db_dev.sql
     mysql -uroot < testdata/dump_dev.sql
 
@@ -63,24 +63,36 @@
 				  "pass":"8888"
 				  }'
 
+				  @output:
+				  
 				  {"Code":200,"Status":"Create successful","Otp":"06370","OtpExpiry":"2019-01-18 10:47:36"}
+				  
+				  
 
 		#User Create (Invalid parameters)
 		curl -v -X POST 'http://127.0.0.1:8989/v1/api/user'  -d '{
 				  "user":"ben@jerry.com",
 				  "pass":"888"
 				  }'
+				  
+				  @output:
 
 				  {"Code":206,"Status":"User/Pass must at least 4 characters"}
+				  
 
 		#User OTP
 		curl -v -X POST 'http://127.0.0.1:8989/v1/api/otp'     -d '{"user":"ben@jerry.com","otp":"06370"}'
 				
+				  @output:
+				  
 				  {"Code":200,"Status":"Otp successful"}
+				  
 
 		#User OTP (Invalid parameters)
 		curl -v -X POST 'http://127.0.0.1:8989/v1/api/otp'     -d '{"user":"ben@jerry.com","otp":"x09733"}'
 				
+				  @output:
+				  
 				  {"Code":403,"Status":"Otp mismatch or invalid"}
 
 						  
@@ -90,6 +102,8 @@
 				  "user":"ben@jerry.com",
 				  "pass":"8888"
 				  }'
+				  
+				  @output:
 
 				  {"Code":200,"Status":"Login Successfull","Token":"{TOKEN}"}
 
@@ -100,6 +114,8 @@
 				  "pass":"8888"
 				  }'
 
+				  @output:
+				  
 				  {"Code":404,"Status":"Record not found"}
 					  
 				  
@@ -107,12 +123,17 @@
 		#User Delete (Invalid parameters)
 		curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/user/ben@jerry.comx' 
 
-			      {"Code":403,"Status":"Invalid token"}
+				@output:
+				
+			    {"Code":403,"Status":"Invalid token"}
+				
 
 		#User Delete
 		curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/user/ben@jerry.com' 
 			  
-			     {"Code":200,"Status":"Delete successful"}
+				@output:
+				
+			    {"Code":200,"Status":"Delete successful"}
 
 		
 		#Icecream Create
@@ -136,13 +157,17 @@
 				"allergy_info": "may contain wheat, peanuts and other tree nuts",
 				"dietary_certifications": "Kosher"}'
 
-
+				@output:
+				
 				{"Code":200,"Status":"Create successful","ProductID":"154"}
 
+				
 		#Icecream Delete
 		curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/icecream/154' 
 				
-				 {"Code":200,"Status":"Delete successful"}
+				@output:
+				
+				{"Code":200,"Status":"Delete successful"}
 
 		#Icecream Update		 
 		curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/icecream/154' -d '{"name": "01-Vanilla Toffee Bar Crunch",
@@ -165,11 +190,16 @@
 				"allergy_info": "--updated may contain wheat, peanuts and other tree nuts",
 				"dietary_certifications": "--updated Kosher"}'
 				 
+				 
+				@output:
+				
 				{"Code":200,"Status":"Update successful"}
 	
 		#Icecream Get
 		curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X GET 'http://127.0.0.1:8989/v1/api/icecream/154'
 
+				@output:
+				
 				{
 				  "Code": 200,
 				  "Status": "Record found",
@@ -207,6 +237,8 @@
 				"e5carrageenan"
 				]}'
 				
+				@output:
+				
 				{"Code":200,"Status":"Create Ingredient successful"}
 
 
@@ -214,7 +246,9 @@
 		#Ingredients Delete
 		curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/ingredient/154'  
 
-		{"Code":200,"Status":"Delete Ingredient successful"}
+				@output:
+				
+				{"Code":200,"Status":"Delete Ingredient successful"}
 
 		
 		#Sourcing Values Create
@@ -224,12 +258,16 @@
 				"w1 yez-Caring Dairy"
 				]}'
 
+				@output:
+				
 				{"Code":200,"Status":"Create Sourcing Values successful"}
 
 
 		#Sourcing Values Delete
 		curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/sourcing/154'  
 
+				@output:
+				
 				{"Code":200,"Status":"Delete Sourcing Values successful"}
 
 

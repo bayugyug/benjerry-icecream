@@ -357,3 +357,28 @@ func (u *User) GetByToken(ctx context.Context, db *sql.DB, token, who string) (*
 	//sounds good ;-)
 	return &data, nil
 }
+
+func (u *User) SetUserLogout(ctx context.Context, db *sql.DB, data *User) (bool, error) {
+	//fmt
+	r := `UPDATE users
+                SET
+                logged      = 0,
+                token_exp   = date_add(Now(), INTERVAL -1 DAY),
+                modified_dt = Now()
+              WHERE  user = ?`
+	//exec
+	result, err := db.ExecContext(ctx, r,
+		data.User,
+	)
+	if err != nil {
+		log.Println("SQL_ERR", err)
+		return false, errors.New("Failed to update")
+	}
+	_, err = result.RowsAffected()
+	if err != nil {
+		log.Println("SQL_ERR", err)
+		return false, errors.New("Failed to update")
+	}
+	//sounds good ;-)
+	return true, nil
+}

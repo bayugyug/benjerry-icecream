@@ -7,7 +7,10 @@ import (
 	"github.com/go-chi/jwtauth"
 )
 
-const TokenAuthSecret = "/v1/api/S3cr3T/benjerry/icecream/choco"
+const (
+	TokenAuthSecret = "/v1/api/S3cr3T/benjerry/icecream/choco"
+	TokenAuthExpDay = 365
+)
 
 type AppJwtConfig struct {
 	TokenAuth *jwtauth.JWTAuth `json:",omitempty"`

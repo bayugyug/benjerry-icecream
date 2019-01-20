@@ -235,7 +235,7 @@ func (api *ApiHandler) Login(w http.ResponseWriter, r *http.Request) {
 		jwt.MapClaims{
 			"user": data.User,
 			"uuid": fmt.Sprintf("%x%x", data.ID, md5.Sum([]byte(data.User))),
-			"exp":  jwtauth.ExpireIn(30 * 24 * time.Hour),
+			"exp":  jwtauth.ExpireIn(utils.TokenAuthExpDay * 24 * time.Hour),
 		},
 	)
 	if err != nil {
@@ -245,8 +245,8 @@ func (api *ApiHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//add pin
-	data.Token = token
-	data.TokenExp = time.Now().Local().Add(time.Hour * time.Duration(24*30)).Format("2006-01-02 15:04:05")
+	data.Token = token //1 yr :-)
+	data.TokenExp = time.Now().Local().Add(time.Hour * time.Duration(24*utils.TokenAuthExpDay)).Format("2006-01-02 15:04:05")
 
 	//set flag
 	_, _ = data.SetUserLogStatus(ApiInstance.Context, ApiInstance.DB, data)
@@ -294,6 +294,12 @@ func (api *ApiHandler) Otp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if row.Status == "active" {
+		utils.Dumper("LOGIN_ACCOUNT_ALREADY_ACTIVE", row.Status)
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Account is OTP is done already")
+		return
+	}
 	if row.Status != "pending" {
 		utils.Dumper("LOGIN_ACCOUNT_NOT_PENDING", row.Status)
 		//403
