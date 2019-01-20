@@ -34,21 +34,27 @@
 
 ### Required Data Preparation
 
-    - Create sample mysql db
+    	[x] Create sample mysql db
 	
-	- Needs to create the api database and grant the necessary permissions
-	
-	- Refer the testdata/*.sql
-	
+		- Needs to create the api database and grant the necessary permissions
+		
+		- Refer the testdata/*.sql
+
+	[x] You can also automate the preparation of db schemas by running the provided scipt
+
+	     testdata/auto-runx.sh
+
+	     (the script assumes that your mysql root account don't have password, 
+	      otherwise, please modify it accordingly according to your setup)
+
 ```sh
 
-    #prod
-    mysql -uroot < testdata/db_prod.sql
-    mysql -uroot < testdata/dump_prod.sql
 
-    #dev
-    mysql -uroot < testdata/db_dev.sql
-    mysql -uroot < testdata/dump_dev.sql
+	#modify the $MYSQL_PWD if your user root have password
+
+	cd testdata && ./auto-runx.sh && cd ../
+
+
 
 ```
 
@@ -271,8 +277,11 @@
 				{"Code":200,"Status":"Delete Sourcing Values successful"}
 
 
-				
-				
+		#User Logout	
+		curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X POST 'http://127.0.0.1:8989/v1/api/logout'	
+
+				@output:
+				{"Code":200,"Status":"Bye!"}		
 				
 				
 ```
@@ -316,6 +325,7 @@
 ```
 
 ### Notes
+
 
 	[x] During http-server start-up, it will load the test-data from the dump_file parameter.
 	
