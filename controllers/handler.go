@@ -17,27 +17,23 @@ type APIResponse struct {
 }
 
 type TokenResponse struct {
-	Code   int
-	Status string
-	Token  string
+	APIResponse
+	Token string
 }
 
 type OtpResponse struct {
-	Code      int
-	Status    string
+	APIResponse
 	Otp       string
 	OtpExpiry string
 }
 
 type IcereamResponse struct {
-	Code      int
-	Status    string
+	APIResponse
 	ProductID string
 }
 
 type IcereamGetResponse struct {
-	Code   int
-	Status string
+	APIResponse
 	Result *models.Icecream
 }
 

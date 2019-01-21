@@ -63,8 +63,9 @@ func (api *ApiHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	//response send
 	render.JSON(w, r, OtpResponse{
-		Code:      http.StatusOK,
-		Status:    "Create successful",
+		APIResponse: APIResponse{
+			Code:   http.StatusOK,
+			Status: "Create successful"},
 		Otp:       data.Otp,
 		OtpExpiry: data.OtpExp,
 	})
@@ -253,9 +254,8 @@ func (api *ApiHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	//token send
 	render.JSON(w, r, TokenResponse{
-		Code:   http.StatusOK,
-		Status: "Login Successfull",
-		Token:  token,
+		APIResponse: APIResponse{Code: http.StatusOK, Status: "Login Successfull"},
+		Token:       token,
 	})
 
 }

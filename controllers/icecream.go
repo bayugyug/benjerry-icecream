@@ -90,8 +90,9 @@ func (api *ApiHandler) CreateIcecream(w http.ResponseWriter, r *http.Request) {
 	}
 	//response send
 	render.JSON(w, r, IcereamResponse{
-		Code:      http.StatusOK,
-		Status:    "Create successful",
+		APIResponse: APIResponse{
+			Code:   http.StatusOK,
+			Status: "Create successful"},
 		ProductID: fmt.Sprintf("%d", prodID),
 	})
 
@@ -223,10 +224,18 @@ func (api *ApiHandler) GetIcecream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if gdata.ID == "" {
+		utils.Dumper("RECORD_NOT_FOUND::PROD_ID", data.Name, prodID)
+		//400
+		api.ReplyErrContent(w, r, http.StatusNotFound, "Icecream not found")
+		return
+	}
+
 	//response send
 	render.JSON(w, r, IcereamGetResponse{
-		Code:   http.StatusOK,
-		Status: "Record found",
+		APIResponse: APIResponse{
+			Code:   http.StatusOK,
+			Status: "Record found"},
 		Result: gdata,
 	})
 
